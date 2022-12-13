@@ -1,0 +1,24 @@
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**Mapper.xml
+server:
+  port: 8081
+
+future:
+  jwt:
+    #??
+    secret: f4e5s5iu9e8f9wj84b3b38b3s83dj303n201md6
+    #token 7? ????
+    expire: 604800
+    header: Authorization
+
+# DataSource Config
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://mysql:3306/expense?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    username: root
+    password: root
+shiro-redis:
+  enabled: true
+  redis-manager:
+    host: redis:6379
