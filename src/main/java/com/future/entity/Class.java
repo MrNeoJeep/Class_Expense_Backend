@@ -1,6 +1,9 @@
 package com.future.entity;
 
 import java.io.Serializable;
+
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -20,6 +23,7 @@ public class Class implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    //指定主键生成策略为不含中划线的UUID
     private String id;
 
     /**
