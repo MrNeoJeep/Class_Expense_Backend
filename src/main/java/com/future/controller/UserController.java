@@ -83,6 +83,7 @@ public class UserController {
         if(user == null) {
             return Result.fail("用户不存在");
         }
+
         if(!user.getPassword().equals(SecureUtil.md5(loginDto.getPassword()))){
             return Result.fail("密码不正确");
         }
