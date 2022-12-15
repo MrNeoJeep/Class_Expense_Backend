@@ -10,6 +10,7 @@ import com.future.common.dto.LoginDto;
 import com.future.common.dto.RegisterDto;
 import com.future.common.lang.Result;
 import com.future.entity.Class;
+import com.future.entity.Record;
 import com.future.entity.User;
 import com.future.service.ClassService;
 import com.future.service.UserService;
@@ -20,6 +21,7 @@ import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -64,14 +66,16 @@ public class UserController {
         //设置班级
         LambdaQueryWrapper<Class> queryWrapper1 = new LambdaQueryWrapper<>();
         queryWrapper1.eq(Class::getClassName,"计算机2012");
-        user.setClassId(classService.getOne(queryWrapper1).getId());
+        Class aClass = classService.getOne(queryWrapper1);
+        user.setClassId(aClass.getId());
 
 
         //设置角色
         user.setRole(3);
-
         userService.save(user);
-
+        //班级人数加1
+        aClass.setClassNum(aClass.getClassNum() + 1);
+        classService.save(aClass);
 
         return Result.success(user);
     }
@@ -103,5 +107,27 @@ public class UserController {
         );
     }
 
+
+    //查询所有用户信息
+    @RequestMapping("/findAll")
+    public Result findAll() {
+        List<User> list = userService.list();
+        //删除密码等隐私数据
+        for(int i = 0;i < list.size();i++) {
+            list.get(i).setPassword("");
+        }
+        return Result.success(list);
+    }
+
+    //根据用户名查用户
+    @RequestMapping("/find")
+    public Result findByName(@RequestParam String username) {
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(User::getUsername,username);
+        User user = userService.getOne(queryWrapper);
+        //删除密码等隐私数据
+        user.setPassword("");
+        return Result.success(user);
+    }
 
 }
