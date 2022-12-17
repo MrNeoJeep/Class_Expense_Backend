@@ -29,6 +29,7 @@ public class ClassController {
     @Autowired
     ClassService classService;
 
+
     //增加班级
     @RequestMapping("/addClass")
     public Result addClass(@RequestBody Class cls) {
