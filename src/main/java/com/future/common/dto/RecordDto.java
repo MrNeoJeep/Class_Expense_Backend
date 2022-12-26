@@ -5,6 +5,8 @@ import lombok.Data;
 import java.time.LocalDateTime;
 @Data
 public class RecordDto {
+
+    private String id;
     /**
      * 记录名
      */
@@ -20,6 +22,8 @@ public class RecordDto {
      */
     private Double recordMoney;
 
+    private Double recordMoneyNew;
+
     /**
      * 实物照片存储路径
      */
@@ -34,4 +38,9 @@ public class RecordDto {
      * 验收人ID
      */
     private String checkId;
+
+    /**
+     * 状态，0未解决，1解决
+     */
+    private Integer state;
 }

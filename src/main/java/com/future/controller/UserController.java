@@ -130,4 +130,15 @@ public class UserController {
         return Result.success(user);
     }
 
+    //根据用户名查用户
+    @RequestMapping("/findById")
+    public Result findById(@RequestParam String id) {
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(User::getId,id);
+        User user = userService.getOne(queryWrapper);
+        //删除密码等隐私数据
+        user.setPassword("");
+        return Result.success(user);
+    }
+
 }

@@ -5,8 +5,13 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.future.common.dto.RecordDto;
 import com.future.common.lang.Result;
+import com.future.config.Constants;
+import com.future.entity.Class;
 import com.future.entity.Record;
+import com.future.entity.User;
+import com.future.service.ClassService;
 import com.future.service.RecordService;
+import com.future.service.UserService;
 import com.future.util.LocalDateTimeUtil;
 import com.future.util.UUIDUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,18 +36,29 @@ public class RecordController {
     @Autowired
     RecordService recordService;
 
+    @Autowired
+    UserService userService;
+
+    @Autowired
+    ClassService classService;
+
     //添加记录
     @RequestMapping("/add")
     public Result addRecord(@RequestBody RecordDto recordDto) {
         Record record = new Record();
-        record.setId(UUIDUtil.getUUID32());
+        record.setId(recordDto.getId());
         record.setRecordName(recordDto.getRecordName());
         record.setRecordMoney(recordDto.getRecordMoney());
         LocalDateTime time = LocalDateTimeUtil.StrToLoaclDateTime(recordDto.getRecordDate());
         record.setRecordDate(time);
         record.setPhotos(recordDto.getPhotos());
         record.setReceipt(recordDto.getReceipt());
-        record.setCheckId(recordDto.getCheckId());
+        String checkName = recordDto.getCheckId();
+        LambdaQueryWrapper<User> queryWrapper2 = new LambdaQueryWrapper<>();
+        queryWrapper2.eq(User::getUsername,checkName);
+        User user = userService.getOne(queryWrapper2);
+        record.setCheckId(user.getId());
+//        record.setCheckId(recordDto.getCheckId());
         record.setState(0);
 
         //查询record_name是否重复,排除已解决的问题
@@ -53,6 +69,15 @@ public class RecordController {
             return Result.fail("记录名重复");
         }
 
+        //查询班费,修改班费
+        LambdaQueryWrapper<Class> queryWrapper3 = new LambdaQueryWrapper<>();
+        queryWrapper3.eq(Class::getClassName, Constants.CLASSNAME);
+        Class aClass = classService.getOne(queryWrapper3);
+        if(aClass.getExpense() - record.getRecordMoney() < 0){
+            return Result.fail("添加失败，班费不足");
+        }
+        aClass.setExpense(aClass.getExpense() - record.getRecordMoney());
+        classService.update(aClass,queryWrapper3);
         recordService.save(record);
         return Result.success("添加成功");
     }
@@ -77,13 +102,34 @@ public class RecordController {
 //            return Result.fail("记录名重复");
 //        }
 //        record.setRecordName(recordDto.getRecordName());
-        record.setRecordMoney(recordDto.getRecordMoney());
+
+
+        record.setRecordMoney(recordDto.getRecordMoneyNew());
         LocalDateTime time = LocalDateTimeUtil.StrToLoaclDateTime(recordDto.getRecordDate());
         record.setRecordDate(time);
         record.setPhotos(recordDto.getPhotos());
         record.setReceipt(recordDto.getReceipt());
-        record.setCheckId(recordDto.getCheckId());
+
+        //检查checkname 是否存在
+        String checkName = recordDto.getCheckId();
+        LambdaQueryWrapper<User> queryWrapper2 = new LambdaQueryWrapper<>();
+        queryWrapper2.eq(User::getUsername,checkName);
+        User user = userService.getOne(queryWrapper2);
+        record.setCheckId(user.getId());
+        //record.setCheckId(recordDto.getCheckId());
         record.setState(0);
+
+        //查询班费,修改班费
+        LambdaQueryWrapper<Class> queryWrapper3 = new LambdaQueryWrapper<>();
+        queryWrapper3.eq(Class::getClassName, Constants.CLASSNAME);
+        Class aClass = classService.getOne(queryWrapper3);
+        Double gap = recordDto.getRecordMoneyNew() - recordDto.getRecordMoney();
+        if(aClass.getExpense() - gap < 0){
+            return Result.fail("更新失败，班费不足");
+        }
+        aClass.setExpense(aClass.getExpense() - gap);
+        classService.update(aClass,queryWrapper3);
+
         recordService.update(record,queryWrapper);
         return Result.success("修改成功");
     }
