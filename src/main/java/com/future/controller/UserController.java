@@ -75,7 +75,7 @@ public class UserController {
         userService.save(user);
         //班级人数加1
         aClass.setClassNum(aClass.getClassNum() + 1);
-        classService.save(aClass);
+        classService.update(aClass,queryWrapper1);
 
         return Result.success(user);
     }
